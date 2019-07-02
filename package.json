@@ -1,0 +1,23 @@
+{
+  "name": "pokerbotcompete",
+  "version": "1.0.0",
+  "description": "A bot to compete with Maz",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric",
+  "license": "ISC",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "pokery": "^0.4.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/register": "^7.4.4",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0"
+  }
+}
