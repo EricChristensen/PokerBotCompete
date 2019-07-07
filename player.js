@@ -213,15 +213,88 @@ export default class Player {
     }
 
     preflopResponse(amount) {
+
+        if (this.stackSize == 0) {
+            return 0;
+        }
+
         if (this.callRange.includes(this.simplePreFlop)) {
             this.stackSize = this.stackSize - amount;
-            return amount;
+            return 0;
         } else if (this.raiseRange.includes(this.simplePreFlop)) {
-            this.stackSize = this.stackSize - (amount * 2);
-            return amount * 2;
+            if (amount == this.sb) {
+                if (this.stackSize - this.sb < 0) { // you only have enough chips to almost call the sb but none for raising
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return 0;
+                }
+                this.stackSize = this.stackSize - this.sb;
+                if (this.stackSize - (3 * this.bb) < 0) { // you've called the sb above now push the remaining chips for a raise
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return oldStackSize;
+                }
+                this.stackSize = this.stackSize - (3 * this.bb);
+                return 3 * this.bb;
+            } else if (amount > 0) {
+                if (amount > this.stackSize) {
+                    this.stackSize = 0;
+                    return 0;
+                }
+                this.stackSize = this.stackSize - amount;
+                if (amount > this.stackSize) {
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return oldStackSize;
+                }
+                this.stackSize = this.stackSize - amount;
+                return amount;
+            } else {
+                if (this.stackSize < (this.bb * 3)) {
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return oldStackSize;
+                }
+                this.stackSize = this.stackSize - (this.bb * 3);
+                return this.bb * 3;
+            }
+            
         } else if (this.threeBetRange.includes(this.simplePreFlop)) {
-            this.stackSize = this.stackSize - (this.bb * 3);
-            return this.bb * 3;
+            if (amount == this.sb) {
+                if (this.stackSize < this.sb) {
+                    this.stackSize = 0;
+                    return 0;
+                }
+                this.stackSize = this.stackSize - this.sb;
+                if (this.stackSize < (3 * this.bb)) {
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return oldStackSize;
+                }
+                this.stackSize = this.stackSize - (3 * this.bb);
+                return 3 * this.bb;
+            } else if (amount > 0) {
+                if (this.stackSize < amount) {
+                    this.stackSize = 0;
+                    return 0;
+                }
+                this.stackSize = this.stackSize - amount;
+                if (this.stackSize < amount) {
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return oldStackSize;
+                }
+                this.stackSize = this.stackSize - amount;
+                return amount;
+            } else {
+                if (this.stackSize < (3 * this.bb)) {
+                    var oldStackSize = this.stackSize;
+                    this.stackSize = 0;
+                    return oldStackSize;
+                } 
+                this.stackSize = this.stackSize - (this.bb * 3);
+                return this.bb * 3;
+            }
         } else {
             if (amount > 0) {
                 return -1;
