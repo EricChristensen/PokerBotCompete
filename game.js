@@ -1,7 +1,7 @@
 import Player from './player';
 import {Deck} from 'pokery';
 import {Hand} from 'pokery';
-import { PokerBot } from '../poker/janda/build/bot.js';
+import { PokerBot } from '../PokerBot/global_ext/janda/build/bot.js';
 
 export default class Game {
     
@@ -13,8 +13,10 @@ export default class Game {
 
     run(times) {
 		const SB = 1;
-        
+        var p1Wins = 0;
+        var p2Wins = 0;
         for (var i = 0; i < times; i++) {
+            console.log(i);
             let deck = new Deck().draw(52);
             let p1Preflop = deck.splice(0,2);
             let p2Preflop = deck.splice(0,2);
@@ -25,16 +27,21 @@ export default class Game {
             let player1 = new Player(p1Preflop, "tight");
             let player2 = new PokerBot(p2Preflop[0], p2Preflop[1], 200);
 
+            //card tracking objects
+            let player1Final = new Player(p1Preflop, "tight");
+            let player2Final = new Player(p2Preflop, "tight");
+
             player2.stackSize -= SB * 2;
             player1.stackSize -= SB;
             let potSize = 3 * SB;
 
-            console.log("Player 1 preflop: " + p1Preflop + " Player 2 preflop: " + p2Preflop);
+            //console.log("Player 1 preflop: " + p1Preflop + " Player 2 preflop: " + p2Preflop);
             var p1pfResponse = player1.preflopResponse(player1.sb);
-            console.log("Player 1 PF response: " + p1pfResponse);
+            //console.log("Player 1 PF response: " + p1pfResponse);
             if (p1pfResponse == -1) {
-                console.log("player 1 folds");
-                break;
+                //console.log("player 1 folds");
+                p2Wins += 1;
+                continue;
             }
 			/* Responses
 				0 - check or call
@@ -48,38 +55,39 @@ export default class Game {
 				p: potSize
 			};
             var p2pfResponse = player2.bot(botState);
-            console.log(" Player 2 PF response: " + p2pfResponse);
+            //console.log(" Player 2 PF response: " + p2pfResponse);
             if (p2pfResponse == -1) {
-                console.log("player 2 folds");
-                break;
+                //console.log("player 2 folds");
+                p1Wins += 1;
+                continue;
             }
-            var i = 0;
+            var j = 0;
             while (p1pfResponse != -1 && p2pfResponse != 0 && p2pfResponse != -1) {
                 p1pfResponse = player1.preflopResponse(p2pfResponse);
                 if (p1pfResponse == 0) {
                     console.log("p1 just called");
                     break;
                 }
-                console.log("Player 1 PF response: " + p1pfResponse);
+                //console.log("Player 1 PF response: " + p1pfResponse);
                 p2pfResponse = player2.preflopResponse(p1pfResponse);
-                console.log(" Player 2 PF response: " + p2pfResponse);
-                console.log("p1 stack size: " + player1.stackSize + " p2 stackSize: " + player2.stackSize);
-                console.log("i: " + i);
-                i += 1;
+                // console.log(" Player 2 PF response: " + p2pfResponse);
+                // console.log("p1 stack size: " + player1.stackSize + " p2 stackSize: " + player2.stackSize);
+                // console.log("i: " + j);
+                j += 1;
             }
 
             
             
-            // player1.setFlop(flop);
-            // player2.setFlop(flop);
+             player1Final.setFlop(flop);
+             player2Final.setFlop(flop);
             // let p1FlopEquity = player1.equity();
             // let p2FlopEquity = player2.equity();
             // console.log("Flop: " + flop);
             // console.log("Player 1 flop decision: " + player1.decisionResponse(p1FlopEquity.winPercentage, p1FlopEquity.losePercentage, 0, 0));
             // console.log("Player 2 flop decision: " + player2.decisionResponse(p2FlopEquity.winPercentage, p2FlopEquity.losePercentage, 0, 0));
 
-            // player1.setTurn(turn);
-            // player2.setTurn(turn);
+            player1Final.setTurn(turn);
+            player2Final.setTurn(turn);
             // console.log("Turn: " + turn);
             // let p1TurnEquity = player1.equity();
             // let p2TurnEquity = player2.equity();
@@ -87,8 +95,8 @@ export default class Game {
             // console.log("Player 1 turn decision: " + player1.decisionResponse(p1TurnEquity.winPercentage, p1TurnEquity.losePercentage, 0, 0));
             // console.log("Player 2 turn decision: " + player2.decisionResponse(p2TurnEquity.winPercentage, p2TurnEquity.losePercentage, 0, 0));
 
-            // player1.setRiver(river);
-            // player2.setRiver(river);
+            player1Final.setRiver(river);
+            player2Final.setRiver(river);
             // console.log("River: " + river);
 
             // let p1RiverEquity = player1.equity();
@@ -97,17 +105,20 @@ export default class Game {
             // console.log("Player 1 river decision: " + player1.decisionResponse(p1RiverEquity.winPercentage, p1RiverEquity.losePercentage, 0, 0));
             // console.log("Player 2 river decision: " + player2.decisionResponse(p2RiverEquity.winPercentage, p2RiverEquity.losePercentage, 0, 0));
 
-            // let p1Hand = new Hand(player1.getCards());
-            // let p2Hand = new Hand(player2.getCards());
-            // let winner = p1Hand.vs(p2Hand);
-            // console.log("player 1: " + p1Preflop + " player 2: " + p2Preflop);
-            // console.log("cards: " + flop + " " + turn + " " + river);
-            // if (winner == 1) {
-            //     console.log("player 1 wins");
-            // } else {
-            //     console.log("player 2 wins");
-            // }
-
+            let p1Hand = new Hand(player1Final.getCards());
+            let p2Hand = new Hand(player2Final.getCards());
+            let winner = p1Hand.vs(p2Hand);
+            console.log("player 1: " + p1Preflop + " player 2: " + p2Preflop);
+            console.log("cards: " + flop + " " + turn + " " + river);
+            if (winner == 1) {
+                console.log("player 1 wins");
+                p1Wins += 1;
+            } else {
+                console.log("player 2 wins");
+                p2Wins += 1;
+            }
         }
+        console.log("p1 wins: " + p1Wins);
+        console.log("p2 wins: " + p2Wins);
     }
 }
