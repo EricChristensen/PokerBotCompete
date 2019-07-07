@@ -1,6 +1,7 @@
 import Player from './player';
 import {Deck} from 'pokery';
 import {Hand} from 'pokery';
+import { PokerBot } from '../poker/janda/build/bot.js';
 
 export default class Game {
     
@@ -8,6 +9,7 @@ export default class Game {
         // this.player1 = player1;
         // this.player2 = player2;
     }
+	const SB = 1;
 
     run(times) {
         
@@ -20,11 +22,10 @@ export default class Game {
             let river = deck.splice(0,1);
 
             let player1 = new Player(p1Preflop, "tight");
-            let player2 = new Player(p2Preflop, "loose");
-            var potSize = 0;
-            player2.stackSize -= player2.bb;
-            player1.stackSize -= player1.sb;
-            potSize = potSize + player2.bb + player1.sb;
+            let player2 = new PokerBot.bot(p2Preflop[0], p2Preflop[1], 200);
+            player2.stackSize -= SB * 2;
+            player1.stackSize -= SB;
+            let potSize = 3 * SB;
             console.log("Player 1 preflop: " + p1Preflop + " Player 2 preflop: " + p2Preflop);
             var p1pfResponse = player1.preflopResponse(player1.sb);
             console.log("Player 1 PF response: " + p1pfResponse);
@@ -76,8 +77,6 @@ export default class Game {
             } else {
                 console.log("player 2 wins");
             }
-
         }
-
     }
 }
