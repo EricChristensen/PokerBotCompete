@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "esm": "^3.2.25",
+    "pec": "^0.7.0",
     "pokery": "^0.4.1"
   },
   "devDependencies": {
