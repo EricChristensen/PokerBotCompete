@@ -5,7 +5,7 @@ import Player from './player';
 import Game from './game';
 
 let game = new Game();
-game.run(100);
+game.run(1);
 
 // let deck = new Deck().draw(52);
 

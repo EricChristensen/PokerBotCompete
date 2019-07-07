@@ -1,124 +1,153 @@
 import Player from './player';
 import {Deck} from 'pokery';
 import {Hand} from 'pokery';
-import { PokerBot } from '../PokerBot/global_ext/janda/build/bot.js';
+import { PokerBot } from '../poker/janda/build/bot.js';
 
 export default class Game {
     
-    constructor(/*player1, player2*/) {
-        // this.player1 = player1;
-        // this.player2 = player2;
-    }
-
-
     run(times) {
 		const SB = 1;
-        var p1Wins = 0;
-        var p2Wins = 0;
+		const STARTING_STACK = 200;
+        var mazTotalWin = 0;
+        var ericTotalWin = 0;
+
         for (var i = 0; i < times; i++) {
-            console.log(i);
+			if (!i%100) {
+            	console.log("On run ", i, "of ", times);
+			}
+
             let deck = new Deck().draw(52);
-            let p1Preflop = deck.splice(0,2);
-            let p2Preflop = deck.splice(0,2);
+
+            let sbCards = deck.splice(0,2);
+            let bbCards = deck.splice(0,2);
+
             let flop = deck.splice(0,3);
             let turn = deck.splice(0,1);
             let river = deck.splice(0,1);
 
-            let player1 = new Player(p1Preflop, "tight");
-            let player2 = new PokerBot(p2Preflop[0], p2Preflop[1], 200);
+            let ericSB = new Player(sbCards, "tight");
+            let mazSB = new PokerBot(bbCards[0], bbCards[1], STARTING_STACK);
 
-            //card tracking objects
-            let player1Final = new Player(p1Preflop, "tight");
-            let player2Final = new Player(p2Preflop, "tight");
+            let ericBB = new Player(bbCards, "tight");
+            let mazBB = new PokerBot(sbCards[0], sbCards[1], STARTING_STACK);
 
-            player2.stackSize -= SB * 2;
-            player1.stackSize -= SB;
-            let potSize = 3 * SB;
+            ericBB.stackSize -= SB * 2;
+            mazBB.stackSize -= SB * 2;
 
-            //console.log("Player 1 preflop: " + p1Preflop + " Player 2 preflop: " + p2Preflop);
-            var p1pfResponse = player1.preflopResponse(player1.sb);
-            //console.log("Player 1 PF response: " + p1pfResponse);
-            if (p1pfResponse == -1) {
-                //console.log("player 1 folds");
-                p2Wins += 1;
-                continue;
-            }
-			/* Responses
-				0 - check or call
-				1-inf - bet
-				-1 - fold
-			*/
+            ericSB.stackSize -= SB;
+            mazSB.stackSize -= SB;
+
+			var mazFoldBb = false;
+			var ericFoldBb = false;
+			var mazFoldSb = false;
+			var ericFoldSb = false;
+
+			// Pot size
+			let ericInBBPot = 3 * SB;
+			let mazInBBPot = 3 * SB;
+
+			var ericInSbResponse = ericSB.preflopResponse(SB);
+			if (ericInSbResponse > 0) {
+				mazInBBPot += ericInSbResponse;
+			}
+			else if (ericInSbResponse == 0) {
+				mazInBBPot += SB;
+			}
+			else if (ericInSbResponse < 0) {
+				ericFoldSb = true;
+				// Maz in BB wins current pot!
+				mazTotalWin += mazInBBPot - (STARTING_STACK - mazBB.stackSize); // take closer look
+			}
+			console.log("Eric SB: ", ericInSbResponse, "mazTotalWin", mazTotalWin, "ericTotalWin", ericTotalWin);
 
 			var botState = {
-				vb: p1pfResponse > 0 ? p1pfResponse: 0,
-				v: player1.stackSize,
-				p: potSize
+				vb: 2, // eric is in BB, is yet to act
+				v: ericBB.stackSize,
+				p: ericInBBPot
 			};
-            var p2pfResponse = player2.bot(botState);
-            //console.log(" Player 2 PF response: " + p2pfResponse);
-            if (p2pfResponse == -1) {
-                //console.log("player 2 folds");
-                p1Wins += 1;
-                continue;
-            }
-            var j = 0;
-            while (p1pfResponse != -1 && p2pfResponse != 0 && p2pfResponse != -1) {
-                p1pfResponse = player1.preflopResponse(p2pfResponse);
-                if (p1pfResponse == 0) {
-                    console.log("p1 just called");
-                    break;
-                }
-                //console.log("Player 1 PF response: " + p1pfResponse);
-                p2pfResponse = player2.preflopResponse(p1pfResponse);
-                // console.log(" Player 2 PF response: " + p2pfResponse);
-                // console.log("p1 stack size: " + player1.stackSize + " p2 stackSize: " + player2.stackSize);
-                // console.log("i: " + j);
-                j += 1;
-            }
 
-            
-            
-             player1Final.setFlop(flop);
-             player2Final.setFlop(flop);
-            // let p1FlopEquity = player1.equity();
-            // let p2FlopEquity = player2.equity();
-            // console.log("Flop: " + flop);
-            // console.log("Player 1 flop decision: " + player1.decisionResponse(p1FlopEquity.winPercentage, p1FlopEquity.losePercentage, 0, 0));
-            // console.log("Player 2 flop decision: " + player2.decisionResponse(p2FlopEquity.winPercentage, p2FlopEquity.losePercentage, 0, 0));
+            var mazInSbResponse = mazSB.bot(botState);
+			if (mazInSbResponse > 0) {
+				ericInBBPot += mazInSbResponse;
+			}
+			else if (mazInSbResponse == 0) {
+				ericInBBPot += SB;
+			}
+			else if (mazInSbResponse < 0) {
+				mazFoldSb = true;
+				// Eric in BB wins current pot! All is well in the world
+				ericTotalWin += ericInBBPot - (STARTING_STACK - ericBB.stackSize);
+			}
+			console.log("Maz SB: ", mazInSbResponse, "mazTotalWin", mazTotalWin, "ericTotalWin", ericTotalWin);
 
-            player1Final.setTurn(turn);
-            player2Final.setTurn(turn);
-            // console.log("Turn: " + turn);
-            // let p1TurnEquity = player1.equity();
-            // let p2TurnEquity = player2.equity();
+			if (mazInSbResponse >= 0) {
+				// Maz all in or folds his sb so only 1 response necessary 
+				var ericInBbResponse = ericBB.preflopResponse(mazInSbResponse);
 
-            // console.log("Player 1 turn decision: " + player1.decisionResponse(p1TurnEquity.winPercentage, p1TurnEquity.losePercentage, 0, 0));
-            // console.log("Player 2 turn decision: " + player2.decisionResponse(p2TurnEquity.winPercentage, p2TurnEquity.losePercentage, 0, 0));
+				if (ericInBbResponse >= 0) {
+					ericInBBPot += ericInBbResponse;
+				}
+				if (ericInBbResponse == 0) {
+					ericInBBPot += mazInSbResponse; //Calling maz's SB bet
+				}
+				else if (ericInBbResponse < 0) {
+					ericFoldBb = true;
+					// Maz in SB wins current pot!
+					mazTotalWin += ericInBBPot - (STARTING_STACK - mazSB.stackSize);
+				}
+				console.log("Eric BB: ", ericInBbResponse, "mazTotalWin", mazTotalWin, "ericTotalWin", ericTotalWin);
+			}
 
-            player1Final.setRiver(river);
-            player2Final.setRiver(river);
-            // console.log("River: " + river);
+			if (ericInSbResponse >= 0) {
+				botState = {
+					vb: ericInSbResponse > 0 ? ericInSbResponse: 0,
+					v: ericSB.stackSize,
+					p: mazInBBPot
+				};
+				var mazInBbResponse = mazBB.bot(botState);
+				if (mazInBbResponse > 0) {
+					mazInBBPot += mazInBbResponse;
+				}
+				if (mazInBbResponse == 0) {
+					mazInBBPot += ericInSbResponse; //Calling maz's SB bet
+				}
+				else if (mazInBbResponse < 0) {
+					mazFoldBb = true;
+					// Eric in SB wins current pot!
+					ericTotalWin += mazInBBPot - (STARTING_STACK - ericSB.stackSize);
+				}
+				console.log("Maz BB: ", mazInBbResponse, "mazTotalWin", mazTotalWin, "ericTotalWin", ericTotalWin);
+			}
 
-            // let p1RiverEquity = player1.equity();
-            // let p2RiverEquity = player2.equity();
+			// See who won (if there was a showdown)
 
-            // console.log("Player 1 river decision: " + player1.decisionResponse(p1RiverEquity.winPercentage, p1RiverEquity.losePercentage, 0, 0));
-            // console.log("Player 2 river decision: " + player2.decisionResponse(p2RiverEquity.winPercentage, p2RiverEquity.losePercentage, 0, 0));
+            let sbHand = new Hand(sbCards.concat(flop).concat(turn).concat(river));
+            let bbHand = new Hand(sbCards.concat(flop).concat(turn).concat(river));
 
-            let p1Hand = new Hand(player1Final.getCards());
-            let p2Hand = new Hand(player2Final.getCards());
-            let winner = p1Hand.vs(p2Hand);
-            console.log("player 1: " + p1Preflop + " player 2: " + p2Preflop);
-            console.log("cards: " + flop + " " + turn + " " + river);
+			// if winner == 1, sb won
+            let winner = sbHand.vs(bbHand);
+
             if (winner == 1) {
-                console.log("player 1 wins");
-                p1Wins += 1;
-            } else {
-                console.log("player 2 wins");
-                p2Wins += 1;
+                console.log("sb wins");
+				if (!mazFoldSb && !ericFoldBb) {
+					console.log("maz sb wins at showdown", mazTotalWin, ericInBBPot);
+					mazTotalWin += ericInBBPot;
+				}
+				if (!ericFoldSb && !mazFoldBb) {
+					console.log("eric sb wins at showdown", ericTotalWin, mazInBBPot);
+					ericTotalWin += mazInBBPot;
+				}
+            } else { //BB won
+				if (!mazFoldBb && !ericFoldSb) {
+					console.log("Maz bb wins at showdown", mazTotalWin, ericInBBPot);
+					mazTotalWin += mazInBBPot;
+				}
+				if (!ericFoldBb && !mazFoldSb) {
+					console.log("eric bb wins at showdown", ericTotalWin, mazInBBPot);
+					ericTotalWin += ericInBBPot;
+				}
             }
         }
-        console.log("p1 wins: " + p1Wins);
-        console.log("p2 wins: " + p2Wins);
+		console.log("WINNINGS REPORT - maz: " + mazTotalWin + " eric: " + ericTotalWin);
     }
 }
