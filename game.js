@@ -28,8 +28,16 @@ export default class Game {
             console.log("Player 1 preflop: " + p1Preflop + " Player 2 preflop: " + p2Preflop);
             var p1pfResponse = player1.preflopResponse(player1.sb);
             console.log("Player 1 PF response: " + p1pfResponse);
+            if (p1pfResponse == -1) {
+                console.log("player 1 folds");
+                break;
+            }
             var p2pfResponse = player2.preflopResponse(p1pfResponse);
             console.log(" Player 2 PF response: " + p2pfResponse);
+            if (p2pfResponse == -1) {
+                console.log("player 2 folds");
+                break;
+            }
             
             player1.setFlop(flop);
             player2.setFlop(flop);
