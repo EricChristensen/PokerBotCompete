@@ -13,10 +13,6 @@ export default class Game {
 		var mazSbWin = 0;
 		var ericSbWin = 0;
 
-		//TODO: bbwin can get combined, delete? 
-        var mazTotalWin = 0;
-        var ericTotalWin = 0;
-
         for (var i = 0; i < times; i++) {
 			if (!i%100) {
             	console.log("On run ", i, "of ", times);
@@ -37,6 +33,7 @@ export default class Game {
             let mazSB = new PokerBot(sbCards[0], sbCards[1], STARTING_STACK);
 
             let ericBB = new Player(bbCards, "cutOff");
+
             let mazBB = new PokerBot(bbCards[0], bbCards[1], STARTING_STACK);
 
             ericBB.stackSize -= SB * 2;
@@ -57,16 +54,16 @@ export default class Game {
 			var ericInSbResponse = ericSB.preflopResponse(SB);
 			if (ericInSbResponse > 0) {
 				mazInBBPot += ericInSbResponse;
-				ericSB.stackSize -= ericInSbResponse;
+				//ericSB.stackSize -= ericInSbResponse;
 			}
 			else if (ericInSbResponse == 0) { //limp
 				mazInBBPot += SB;
-				ericSB.stackSize -= SB;
+				//ericSB.stackSize -= SB;
 			}
 			else if (ericInSbResponse < 0) {
 				ericFoldSb = true;
 				// Maz in BB wins current pot!
-				mazTotalWin += mazInBBPot - (STARTING_STACK - mazBB.stackSize); // take closer look
+				//mazTotalWin += mazInBBPot - (STARTING_STACK - mazBB.stackSize); // take closer look
 				mazBbWin += mazInBBPot - (STARTING_STACK - mazBB.stackSize); // take closer look
 				ericSbWin -= mazInBBPot - (STARTING_STACK - ericBB.stackSize); // take closer look
 			}
@@ -81,16 +78,16 @@ export default class Game {
             var mazInSbResponse = mazSB.bot(botState);
 			if (mazInSbResponse > 0) {
 				ericInBBPot += mazInSbResponse;
-				mazSB.stackSize -= mazInSbResponse;
+				//mazSB.stackSize -= mazInSbResponse;
 			}
 			else if (mazInSbResponse == 0) {
 				ericInBBPot += SB;
-				mazSB.stackSize -= SB;
+				//mazSB.stackSize -= SB;
 			}
 			else if (mazInSbResponse < 0) {
 				mazFoldSb = true;
 				// Eric in BB wins current pot! All is well in the world
-				ericTotalWin += ericInBBPot - (STARTING_STACK - ericBB.stackSize);
+				//ericTotalWin += ericInBBPot - (STARTING_STACK - ericBB.stackSize);
 				ericBbWin += ericInBBPot - (STARTING_STACK - ericBB.stackSize); // take closer look
 				mazSbWin -= ericInBBPot - (STARTING_STACK - ericBB.stackSize); // take closer look
 			}
@@ -102,7 +99,7 @@ export default class Game {
 
 				if (ericInBbResponse > 0) {
 					ericInBBPot += ericInBbResponse;
-					ericBB.stackSize -= ericInBbResponse;
+					//ericBB.stackSize -= ericInBbResponse;
 				}
 				else if (ericInBbResponse == 0) {
 					// BB calls sb bet -1
@@ -111,7 +108,7 @@ export default class Game {
 				else if (ericInBbResponse < 0) {
 					ericFoldBb = true;
 					// Maz in SB wins current pot!
-					mazTotalWin += ericInBBPot - (STARTING_STACK - mazSB.stackSize);
+					//mazTotalWin += ericInBBPot - (STARTING_STACK - mazSB.stackSize);
 					mazSbWin += ericInBBPot - (STARTING_STACK - mazBB.stackSize);
 					ericBbWin -= ericInBBPot - (STARTING_STACK - mazBB.stackSize);
 				}
@@ -128,7 +125,7 @@ export default class Game {
 				var mazInBbResponse = mazBB.bot(botState);
 				if (mazInBbResponse > 0) {
 					mazInBBPot += mazInBbResponse;
-					mazBB.stackSize -= mazInBbResponse;
+					//mazBB.stackSize -= mazInBbResponse;
 				}
 				if (mazInBbResponse == 0) {
 					//TODO: investigate this logic
@@ -138,7 +135,7 @@ export default class Game {
 				else if (mazInBbResponse < 0) {
 					mazFoldBb = true;
 					// Eric in SB wins current pot!
-					ericTotalWin += mazInBBPot - (STARTING_STACK - ericSB.stackSize);
+					//ericTotalWin += mazInBBPot - (STARTING_STACK - ericSB.stackSize);
 					ericSbWin += mazInBBPot - (STARTING_STACK - ericBB.stackSize); // take closer look
 					mazBbWin -= mazInBBPot - (STARTING_STACK - ericBB.stackSize); // take closer look
 				}
@@ -158,13 +155,13 @@ export default class Game {
                 console.log("sb wins");
 
 				if (!mazFoldSb && !ericFoldBb) {
-					console.log("maz sb wins at showdown", mazTotalWin, ericInBBPot);
+					//console.log("maz sb wins at showdown", mazTotalWin, ericInBBPot);
 					mazTotalWin += ericInBBPot - (STARTING_STACK);
 					ericBbWin -= ericInBBPot - (STARTING_STACK);
 					mazSbWin += ericInBBPot;
 				}
 				if (!ericFoldSb && !mazFoldBb) {
-					console.log("eric sb wins at showdown", ericTotalWin, mazInBBPot);
+					//console.log("eric sb wins at showdown", ericTotalWin, mazInBBPot);
 					ericTotalWin += mazInBBPot - (STARTING_STACK);
 					mazBbWin -= mazInBBPot - (STARTING_STACK);
 					ericSbWin += mazInBBPot - (STARTING_STACK);
@@ -172,12 +169,12 @@ export default class Game {
             } 
 			else if (winner == -1) { // BB won
 				if (!mazFoldBb && !ericFoldSb) {
-					mazTotalWin += mazInBBPot - (STARTING_STACK);
+					//mazTotalWin += mazInBBPot - (STARTING_STACK);
 					mazBbWin += mazInBBPot - (STARTING_STACK);
 					ericSbWin -= mazInBBPot - STARTING_STACK;
 				}
 				if (!ericFoldBb && !mazFoldSb) {
-					ericTotalWin += ericInBBPot - (STARTING_STACK);
+					//ericTotalWin += ericInBBPot - (STARTING_STACK);
 					ericBbWin += ericInBBPot - (STARTING_STACK);
 					mazSbWin -= ericInBBPot - (STARTING_STACK);
 				}
@@ -187,6 +184,10 @@ export default class Game {
 				// Nobody wins in a tie
 			}
         }
+
+        var mazTotalWin = mazBbWin + mazSbWin;
+        var ericTotalWin = ericBbWin + ericSbWin;
+
 		console.log("WINNINGS REPORT - maz: " + mazTotalWin + " eric: " + ericTotalWin);
 		console.log("Maz BB win: " + mazBbWin);
 		console.log("Eric BB win: " + ericBbWin);
