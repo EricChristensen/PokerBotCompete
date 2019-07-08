@@ -7,7 +7,7 @@ export default class Player {
     constructor(preFlop, playerType) {
         this.bb = 2;
         this.sb = 1;
-        this.stackSize = 100;
+        this.stackSize = 100 * this.bb;
         this.preFlop = preFlop;
         this.simplePreFlop = this.simplifiedPreflop(preFlop);
         this.cards = [];
