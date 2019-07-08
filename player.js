@@ -102,6 +102,10 @@ export default class Player {
             this.callRange = c.looseCallRange;
             this.threeBetRange = c.looseThreeBetRange;
             this.raiseRange = c.looseRaiseRange;
+        } else if (playerType == "cutOff") {
+            this.callRange = c.cutOffCallRange,
+            this.threeBetRange = c.cutOffThreeBetRange,
+            this.raiseRange = c.cutOffRaiseRange
         }
     }
 

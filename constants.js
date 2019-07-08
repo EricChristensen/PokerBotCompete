@@ -14,6 +14,14 @@ const looseRaiseRange = ['K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s', 'Q8s',
 const looseThreeBetRange = ['AA', 'KK', 'QQ', 'JJ', 'TT', '99', 'AKs', 'AQs', 'AJs', 'ATs', 'A5s', 'A4s', 'A3s', 'A2s',
                         'KQs', 'KJs', 'QJs', 'JTs', '97s', '75s'];
 
+const cutOffCallRange = ['AKo', 'QQ', 'JJ', 'TT','99', '88', '77', '66', '55', '44', '33', '22',
+                            'AKs', 'AQs', 'AJs', 'ATs', 'KQs', 'KJs', 'KTs', 'QJs', 'QTs',
+                        'JTs', 'T9s', '98s', '87s', '76s', ]
+const cutOffRaiseRange = ['A9s', 'A8s', 'A7s', 'A6s', 'A4s', 'A3s', 'A2s', 'K9s', 'K8s', 'K7s',
+                            'Q9s', 'J9s', 'T8s', '97s', '86s', '75s', '65s', '64s', '54s', '53s', '43s',
+                        'AQo', 'KQo', 'AJo', 'KJo', 'ATo']
+const cutOffThreeBetRange = ['AA', 'KK', 'A5s']
+
 export default {
     tightCallRange: tightCallRange,
     tightRaiseRange: tightRaiseRange,
@@ -21,5 +29,9 @@ export default {
 
     looseCallRange: looseCallRange,
     looseRaiseRange: looseRaiseRange,
-    looseThreeBetRange: looseThreeBetRange
+    looseThreeBetRange: looseThreeBetRange,
+
+    cutOffCallRange: cutOffCallRange,
+    cutOffRaiseRange: cutOffRaiseRange,
+    cutOffThreeBetRange: cutOffThreeBetRange
 }

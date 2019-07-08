@@ -1,7 +1,7 @@
 import Player from './player';
 import {Deck} from 'pokery';
 import {Hand} from 'pokery';
-import { PokerBot } from '../poker/janda/build/bot.js';
+import { PokerBot } from '../PokerBot/global_ext/janda/build/bot.js';
 
 export default class Game {
 
@@ -33,10 +33,10 @@ export default class Game {
             let turn = deck.splice(0,1);
             let river = deck.splice(0,1);
 
-            let ericSB = new Player(sbCards, "tight");
+            let ericSB = new Player(sbCards, "cutOff");
             let mazSB = new PokerBot(sbCards[0], sbCards[1], STARTING_STACK);
 
-            let ericBB = new Player(bbCards, "tight");
+            let ericBB = new Player(bbCards, "cutOff");
             let mazBB = new PokerBot(bbCards[0], bbCards[1], STARTING_STACK);
 
             ericBB.stackSize -= SB * 2;
