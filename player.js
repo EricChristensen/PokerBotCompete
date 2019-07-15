@@ -216,7 +216,7 @@ export default class Player {
         return (finalFistCard + finalSecondCard);
     }
 
-    preflopResponse(amount) {
+    preflopResponse(amount) { // maybe bugs here
 
         if (this.stackSize == 0) {
             return 0;
